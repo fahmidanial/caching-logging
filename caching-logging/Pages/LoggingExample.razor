@@ -1,0 +1,15 @@
+﻿@page "/logging-example"
+@inject ILogger<LoggingExample> Logger
+
+<h3>Logging Example</h3>
+
+<button @onclick="LogMessage">Log Message</button>
+
+@code {
+    private void LogMessage()
+    {
+        Logger.LogInformation("Button clicked at {Time}", DateTime.Now);
+        Logger.LogWarning("This is a warning message.");
+        Logger.LogError("This is an error message.");
+    }
+}

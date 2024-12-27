@@ -1,9 +1,14 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
 @using caching_logging.Services
+@using Blazored.LocalStorage
+@inject IJSRuntime JSRuntime
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <CascadingAuthenticationState>
-    <div class="page">
+    <div class="page @themeClass">
         <div class="sidebar">
             <NavMenu />
         </div>
@@ -29,8 +34,30 @@
 </CascadingAuthenticationState>
 
 @code {
-    [Inject] private NavigationManager Navigation { get; set; }
-    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+    private string themeClass = "light-theme"; // Default theme
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load the theme when the component initializes
+        await LoadTheme();
+    }
+
+    private async Task LoadTheme()
+    {
+        try
+        {
+            // Retrieve the current theme from LocalStorage (default to "Light" if not set)
+            var theme = await LocalStorage.GetItemAsync<string>("Theme") ?? "Light";
+            themeClass = theme == "Dark" ? "dark-theme" : "light-theme";
+
+            // Apply the theme
+            await JSRuntime.InvokeVoidAsync("applyTheme", theme);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading theme: {ex.Message}");
+        }
+    }
 
     private async Task Logout()
     {
