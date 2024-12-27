@@ -1,0 +1,38 @@
+﻿@page "/local-storage-example"
+@using Blazored.LocalStorage
+@inject ILocalStorageService LocalStorage
+
+<h3>LocalStorage Example</h3>
+
+<button @onclick="SaveData">Save Data</button>
+<button @onclick="LoadData">Load Data</button>
+
+<p>@storedData</p>
+
+@code {
+    private string storedData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load data from LocalStorage when the component initializes
+        await LoadData();
+    }
+
+    private async Task SaveData()
+    {
+        // Save data to LocalStorage
+        await LocalStorage.SetItemAsync("MyKey", "Hello, LocalStorage!");
+        storedData = "Data saved!";
+    }
+
+    private async Task LoadData()
+    {
+        // Retrieve data from LocalStorage
+        storedData = await LocalStorage.GetItemAsync<string>("MyKey");
+
+        if (string.IsNullOrEmpty(storedData))
+        {
+            storedData = "No data found in LocalStorage.";
+        }
+    }
+}

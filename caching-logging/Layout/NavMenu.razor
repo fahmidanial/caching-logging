@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Blazored.LocalStorage
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Your App</a>
         <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
@@ -14,12 +16,22 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="local-storage-example">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> LocalStorage Example
+            </NavLink>
+        </div>
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="secure-page">
                         <span class="oi oi-lock-locked" aria-hidden="true"></span> Secure Page
                     </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <button class="btn btn-link nav-link" @onclick="ToggleTheme">
+                        <span class="oi oi-brush" aria-hidden="true"></span> Toggle Theme
+                    </button>
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -35,11 +47,27 @@
 
 @code {
     private bool collapseNavMenu = true;
-
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    [Inject] private ILocalStorageService LocalStorage { get; set; } // Inject LocalStorage
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task ToggleTheme()
+    {
+        // Retrieve the current theme from LocalStorage
+        var currentTheme = await LocalStorage.GetItemAsync<string>("Theme");
+
+        // Toggle the theme
+        var newTheme = currentTheme == "Dark" ? "Light" : "Dark";
+
+        // Save the new theme to LocalStorage
+        await LocalStorage.SetItemAsync("Theme", newTheme);
+
+        // Apply the new theme (you can add logic to update the UI)
+        Console.WriteLine($"Theme changed to: {newTheme}");
     }
 }
