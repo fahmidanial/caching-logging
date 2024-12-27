@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Threading.Tasks;
 
-namespace caching_logging.Services // Ensure the namespace matches the folder structure
+namespace caching_logging.Services
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
