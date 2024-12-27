@@ -1,0 +1,14 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<h3>Home Page</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Welcome, @context.User.Identity.Name!</p>
+        <p>You are authorized to view this content.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Please <a href="/account/login">log in</a> to view this content.</p>
+    </NotAuthorized>
+</AuthorizeView>

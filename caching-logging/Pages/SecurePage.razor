@@ -1,0 +1,16 @@
+﻿@page "/secure-page"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+<h3>Secure Page</h3>
+
+<AuthorizeView>
+    <Authorized Context="authContext">
+        <p>Welcome, @authContext.User.Identity.Name!</p>
+        <p>You are authorized to view this page.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to view this page.</p>
+    </NotAuthorized>
+</AuthorizeView>
