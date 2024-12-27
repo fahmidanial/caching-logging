@@ -21,6 +21,11 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> LocalStorage Example
             </NavLink>
         </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="logging-example">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Logging Example
+            </NavLink>
+        </div>
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
@@ -49,7 +54,20 @@
     private bool collapseNavMenu = true;
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    [Inject] private ILocalStorageService LocalStorage { get; set; } // Inject LocalStorage
+    [Inject] private ILocalStorageService LocalStorage { get; set; }
+    [Inject] private ILogger<NavMenu> Logger { get; set; }
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+
+    private const string DarkTheme = "Dark";
+    private const string LightTheme = "Light";
+    private bool isThemeLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load the theme when the component initializes
+        await LoadTheme();
+        isThemeLoading = false;
+    }
 
     private void ToggleNavMenu()
     {
@@ -58,16 +76,44 @@
 
     private async Task ToggleTheme()
     {
-        // Retrieve the current theme from LocalStorage
-        var currentTheme = await LocalStorage.GetItemAsync<string>("Theme");
+        try
+        {
+            // Retrieve the current theme from LocalStorage (default to "Light" if not set)
+            var currentTheme = await LocalStorage.GetItemAsync<string>("Theme") ?? LightTheme;
 
-        // Toggle the theme
-        var newTheme = currentTheme == "Dark" ? "Light" : "Dark";
+            // Toggle the theme
+            var newTheme = currentTheme == DarkTheme ? LightTheme : DarkTheme;
 
-        // Save the new theme to LocalStorage
-        await LocalStorage.SetItemAsync("Theme", newTheme);
+            // Save the new theme to LocalStorage
+            await LocalStorage.SetItemAsync("Theme", newTheme);
 
-        // Apply the new theme (you can add logic to update the UI)
-        Console.WriteLine($"Theme changed to: {newTheme}");
+            // Apply the new theme
+            await ApplyTheme(newTheme);
+
+            Logger.LogInformation($"Theme changed to: {newTheme}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error toggling theme: {ex.Message}");
+        }
+    }
+
+    private async Task LoadTheme()
+    {
+        try
+        {
+            var theme = await LocalStorage.GetItemAsync<string>("Theme") ?? LightTheme;
+            await ApplyTheme(theme);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Error loading theme: {ex.Message}");
+        }
+    }
+
+    private async Task ApplyTheme(string theme)
+    {
+        // Call the JavaScript function to apply the theme
+        await JSRuntime.InvokeVoidAsync("applyTheme", theme);
     }
 }
