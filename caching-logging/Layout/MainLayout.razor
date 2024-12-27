@@ -1,16 +1,41 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@using Microsoft.AspNetCore.Components.Authorization
+@using caching_logging.Services
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+<CascadingAuthenticationState>
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+        <main>
+            <div class="top-row px-4">
+                <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+                <AuthorizeView>
+                    <Authorized>
+                        <a href="javascript:void(0)" @onclick="Logout">Logout</a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/account/login">Login</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </div>
+</CascadingAuthenticationState>
+
+@code {
+    [Inject] private NavigationManager Navigation { get; set; }
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+    private async Task Logout()
+    {
+        var authProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+        authProvider.MarkUserAsLoggedOut();
+        Navigation.NavigateTo("/");
+    }
+}
